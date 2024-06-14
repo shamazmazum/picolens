@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>
+  API &ndash; picolens
+</title>
+    <link rel="stylesheet" href="static/style.css"/>
+    
+  <link rel="stylesheet" href="static/highlight.css"/>
+  <script src="static/highlight.js"></script>
+  <script src="static/load-mathjax.js" async></script>
+  <style>
+   /* Highlight the current top-level TOC item, and hide the TOC of all other items */
+
+   .toc a[data-node="api"] {
+       /*color: #AD3108;*/
+   }
+
+   .toc ol {
+       display: none;
+   }
+
+   .toc li a[data-node="api"] {
+       font-weight: bold;
+   }
+
+   .toc li a[data-node="api"] + ol {
+       display: block;
+   }
+
+   .toc li a[data-node="api"] + ol li {
+       margin-left: 10px;
+   }
+  </style>
+
+  </head>
+  <body>
+    
+  <h1 class="doc-title">picolens</h1>
+  <article id="article" data-section="api">
+    <aside>
+      <ol class="toc"><li><a href="index.html" data-node="index">Overview</a></li><li><a href="api.html" data-node="api">API</a></li></ol>
+    </aside>
+    <main class="codex-section">
+      <header>
+        <h2 class="section-title">API</h2>
+      </header>
+      <div class="content">
+        <p>   
+     <div class="codex-doc-node codex-operator codex-function"><code class="codex-name">view</code><code class="codex-lambda-list">(lens x)</code><div class="codex-docstring">Get the target of a lens, a getter or a fold.</div></div>
+     <div class="codex-doc-node codex-operator codex-function"><code class="codex-name">set</code><code class="codex-lambda-list">(lens val x)</code><div class="codex-docstring">Replace the target of a lens with <code>val</code>.</div></div>
+     <div class="codex-doc-node codex-operator codex-function"><code class="codex-name">over</code><code class="codex-lambda-list">(lens f x)</code><div class="codex-docstring">Modify the target of a lens applying <code>f</code> to it.</div></div>
+     <div class="codex-doc-node codex-operator codex-function"><code class="codex-name">fold</code><code class="codex-lambda-list">(f &amp;rest gs)</code><div class="codex-docstring">Make a fold out of multiple getters <code>gs</code> and an associative
+binary operation <code>f</code>:<pre><code class="lisp">(view (fold #'* *car* *cdr*) '(2 . 3)) ; =&gt; 6
+</code></pre></div></div>
+     <div class="codex-doc-node codex-operator codex-function"><code class="codex-name">compose</code><code class="codex-lambda-list">(&amp;rest ls)</code><div class="codex-docstring"><p>Compose lenses.</p><p>For example
+</p><pre><code class="lisp">(view (compose (to #'cdr)(to #'car)) x)
+</code></pre><p>is equal to
+</p><pre><code class="lisp">(car (cdr x))
+</code></pre></div></div>
+     <div class="codex-doc-node codex-operator codex-function"><code class="codex-name">empty</code><code class="codex-lambda-list">(fmap f x)</code><div class="codex-docstring">Neutral element in monoid of lenses under composition:<pre><code class="lisp">(equalp (view empty x) x)               ; =&gt; T
+(equalp (over empty f x)(funcall f x)) ; =&gt; T
+</code></pre></div></div>
+     <div class="codex-doc-node codex-operator codex-function"><code class="codex-name">lens</code><code class="codex-lambda-list">(get set)</code><div class="codex-docstring"><p>Make a lens out of a setter of type <code>a -&gt; b -&gt; c</code> and a getter of
+type <code>b -&gt; a</code>.</p><p>Example:
+</p><pre><code class="lisp">(lens #'car (lambda (v cons)(cons v (cdr cons))))
+</code></pre><p>
+is a lens equivalent of <code>car</code>.</p></div></div>
+     <div class="codex-doc-node codex-operator codex-function"><code class="codex-name">to</code><code class="codex-lambda-list">(get)</code><div class="codex-docstring">Make a getter out of a function <code>get</code>. An attempt to use this
+getter with <code>over</code> or <code>set</code> results in a runtime error.</div></div>
+     <div class="codex-doc-node codex-operator codex-macro"><code class="codex-name">gen-lenses</code><code class="codex-lambda-list">(constructor &amp;body lens-specs)</code><div class="codex-docstring">Generate lenses for a container (e.g. a structure, a class or even
+a cons cell). This macro is called with <code>constructor</code> which is the
+name of a constructor of the container followed by lens specification
+in the form <code>(reader-name lens-name)</code> for each slot (in the order
+determined by the constructor). Here is an example:<pre><code class="lisp">(serapeum:defconstructor node
+  (value integer)
+  (left  (or null node))
+  (right (or null node)))
+
+(gen-lenses node
+  (node-value value)
+  (node-left  left)
+  (node-right right))
+</code></pre></div></div>
+     <div class="codex-doc-node codex-variable"><code class="codex-name">*car*</code><div class="codex-docstring">Lens equivalent of <code>car</code></div></div>
+     <div class="codex-doc-node codex-variable"><code class="codex-name">*cdr*</code><div class="codex-docstring">Lens equivalent of <code>cdr</code></div></div>
+     <div class="codex-doc-node codex-variable"><code class="codex-name">*caar*</code><div class="codex-docstring">Lens equivalent of <code>caar</code></div></div>
+     <div class="codex-doc-node codex-variable"><code class="codex-name">*cadr*</code><div class="codex-docstring">Lens equivalent of <code>cadr</code></div></div>
+     <div class="codex-doc-node codex-variable"><code class="codex-name">*cdar*</code><div class="codex-docstring">Lens equivalent of <code>cdar</code></div></div>
+     <div class="codex-doc-node codex-variable"><code class="codex-name">*cddr*</code><div class="codex-docstring">Lens equivalent of <code>cddr</code></div></div>
+   
+</p>
+      </div>
+    </main>
+  </article>
+  <footer>
+    <div class="info">
+      Created with <a href="https://github.com/CommonDoc/codex">Codex</a>.
+    </div>
+  </footer>
+  <script>
+   HighlightLisp.highlight_auto();
+  </script>
+
+  </body>
+</html>

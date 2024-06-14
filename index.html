@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>
+  Overview &ndash; picolens
+</title>
+    <link rel="stylesheet" href="static/style.css"/>
+    
+  <link rel="stylesheet" href="static/highlight.css"/>
+  <script src="static/highlight.js"></script>
+  <script src="static/load-mathjax.js" async></script>
+  <style>
+   /* Highlight the current top-level TOC item, and hide the TOC of all other items */
+
+   .toc a[data-node="index"] {
+       /*color: #AD3108;*/
+   }
+
+   .toc ol {
+       display: none;
+   }
+
+   .toc li a[data-node="index"] {
+       font-weight: bold;
+   }
+
+   .toc li a[data-node="index"] + ol {
+       display: block;
+   }
+
+   .toc li a[data-node="index"] + ol li {
+       margin-left: 10px;
+   }
+  </style>
+
+  </head>
+  <body>
+    
+  <h1 class="doc-title">picolens</h1>
+  <article id="article" data-section="index">
+    <aside>
+      <ol class="toc"><li><a href="index.html" data-node="index">Overview</a></li><li><a href="api.html" data-node="api">API</a></li></ol>
+    </aside>
+    <main class="codex-section">
+      <header>
+        <h2 class="section-title">Overview</h2>
+      </header>
+      <div class="content">
+        <p>
+   <code>picolens</code> is a tiny library for working with lenses. A lens is a
+   functional reference to some object, e.g. a slot in a structure which can be
+   used to read or alter that object.</p><p>   Here is an example. Suppose you have a structure with the following definition:
+</p><pre><code class="lisp">(defstruct (foo (:constructor foo (x y)))
+  (x  0        :type integer)
+  (y  '(0 . 0) :type (cons integer integer)))
+</code></pre><p>   Let's generate lenses for each slot in that structure:
+</p><pre><code class="lisp">(picolens:gen-lenses foo
+  (foo-x x)
+  (foo-y y))
+</code></pre><p>   Make an instance of that structure:
+</p><pre><code class="lisp">(defparameter *foo* (foo 3 '(2 . 4)))
+</code></pre><p>   Now you can use lenses <code>x</code> and <code>y</code> to access slots in <code>foo</code> using
+   <code>view</code>(for reading) or <code>over</code> and <code>set</code> for writing:
+</p><pre><code class="lisp">CL-USER&gt; (picolens:view #'x *foo*)
+3
+CL-USER&gt; (picolens:set #'x 5 *foo*)
+#S(FOO :X 5 :Y (2 . 4))
+CL-USER&gt; (picolens:over #'x #'1+ *foo*)
+#S(FOO :X 4 :Y (2 . 4))
+</code></pre><p>   Note that <code>*foo*</code> itself does not change after a call to <code>set</code>:
+</p><pre><code class="lisp">CL-USER&gt; *foo*
+#S(FOO :X 3 :Y (2 . 4))
+</code></pre><p>   Let's define lenses for a cons cell:
+</p><pre><code class="lisp">(picolens:gen-lenses cons
+  (car fst)
+  (cdr snd))
+</code></pre><p>  Two lenses can be composed to access objects which lie even deeper:
+</p><pre><code class="lisp">CL-USER&gt; (picolens:view (picolens:compose #'y #'fst) *foo*)
+2
+CL-USER&gt; (picolens:set (picolens:compose #'y #'fst) 30 *foo*)
+#S(FOO :X 3 :Y (30 . 4))
+</code></pre><p>  The order of composition is a reverse of a usual function call, i.e. usually
+  we would write:
+</p><pre><code class="lisp">CL-USER&gt; (funcall (alexandria:compose #'car #'foo-y) *foo*)
+2
+</code></pre><p>  A operation of composition is associative and has a neutral element <code>empty</code>
+  which can be useful, for example, for traversals of trees.</p><p>  A lens can be made out of a pair of ordinary functions, one of which acts as
+  a reader and another as a writer. For example, the previously defined <code>fst</code>
+  is equivalent to
+</p><pre><code class="lisp">CL-USER&gt; (picolens:lens #'car (lambda (x cons)(cons x (cdr cons))))
+</code></pre><p>  An &quot;incomplete&quot; lens, a getter can be obtained by calling <code>to</code>:
+</p><pre><code class="lisp">CL-USER&gt; (picolens:to #'car)
+</code></pre><p>
+  A getter can only be used with <code>view</code>. Using it with <code>over</code> and <code>set</code>
+  signals an error.</p><p>Also there is a fold which can be made using lenses of getters. For example,
+this is how you can add to objects in a cons pair:
+</p><pre><code class="lisp">CL-USER&gt; (picolens:view (picolens:fold #'+ (picolens:to #'car)(picolens:to #'cdr)) '(1 . 3))
+4
+</code></pre><p>
+</p>
+      </div>
+    </main>
+  </article>
+  <footer>
+    <div class="info">
+      Created with <a href="https://github.com/CommonDoc/codex">Codex</a>.
+    </div>
+  </footer>
+  <script>
+   HighlightLisp.highlight_auto();
+  </script>
+
+  </body>
+</html>
