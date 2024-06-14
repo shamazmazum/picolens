@@ -1,0 +1,110 @@
+@begin[ref=index](section)
+   @title(Overview)
+   @c(picolens) is a tiny library for working with lenses. A lens is a
+   functional reference to some object, e.g. a slot in a structure which can be
+   used to read or alter that object.
+
+   Here is an example. Suppose you have a structure with the following definition:
+@begin[lang=lisp](code)
+(defstruct (foo (:constructor foo (x y)))
+  (x  0        :type integer)
+  (y  '(0 . 0) :type (cons integer integer)))
+@end(code)
+
+   Let's generate lenses for each slot in that structure:
+@begin[lang=lisp](code)
+(picolens:gen-lenses foo
+  (foo-x x)
+  (foo-y y))
+@end(code)
+
+   Make an instance of that structure:
+@begin[lang=lisp](code)
+(defparameter *foo* (foo 3 '(2 . 4)))
+@end(code)
+
+   Now you can use lenses @c(x) and @c(y) to access slots in @c(foo) using
+   @c(view) (for reading) or @c(over) and @c(set) for writing:
+@begin[lang=lisp](code)
+CL-USER> (picolens:view #'x *foo*)
+3
+CL-USER> (picolens:set #'x 5 *foo*)
+#S(FOO :X 5 :Y (2 . 4))
+CL-USER> (picolens:over #'x #'1+ *foo*)
+#S(FOO :X 4 :Y (2 . 4))
+@end(code)
+
+   Note that @c(*foo*) itself does not change after a call to @c(set):
+@begin[lang=lisp](code)
+CL-USER> *foo*
+#S(FOO :X 3 :Y (2 . 4))
+@end(code)
+
+   Let's define lenses for a cons cell:
+@begin[lang=lisp](code)
+(picolens:gen-lenses cons
+  (car fst)
+  (cdr snd))
+@end(code)
+
+  Two lenses can be composed to access objects which lie even deeper:
+@begin[lang=lisp](code)
+CL-USER> (picolens:view (picolens:compose #'y #'fst) *foo*)
+2
+CL-USER> (picolens:set (picolens:compose #'y #'fst) 30 *foo*)
+#S(FOO :X 3 :Y (30 . 4))
+@end(code)
+
+  The order of composition is a reverse of a usual function call, i.e. usually
+  we would write:
+@begin[lang=lisp](code)
+CL-USER> (funcall (alexandria:compose #'car #'foo-y) *foo*)
+2
+@end(code)
+
+  A operation of composition is associative and has a neutral element @c(empty)
+  which can be useful, for example, for traversals of trees.
+
+  A lens can be made out of a pair of ordinary functions, one of which acts as
+  a reader and another as a writer. For example, the previously defined @c(fst)
+  is equivalent to
+@begin[lang=lisp](code)
+CL-USER> (picolens:lens #'car (lambda (x cons) (cons x (cdr cons))))
+@end(code)
+
+  An "incomplete" lens, a getter can be obtained by calling @c(to):
+@begin[lang=lisp](code)
+CL-USER> (picolens:to #'car)
+@end(code)
+  A getter can only be used with @c(view). Using it with @c(over) and @c(set)
+  signals an error.
+
+Also there is a fold which can be made using lenses of getters. For example,
+this is how you can add to objects in a cons pair:
+@begin[lang=lisp](code)
+CL-USER> (picolens:view (picolens:fold #'+ (picolens:to #'car) (picolens:to #'cdr)) '(1 . 3))
+4
+@end(code)
+@end(section)
+
+@begin(section)
+   @title(API)
+
+   @cl:with-package[name="picolens"](
+     @cl:doc(function view)
+     @cl:doc(function set)
+     @cl:doc(function over)
+     @cl:doc(function fold)
+     @cl:doc(function compose)
+     @cl:doc(function empty)
+     @cl:doc(function lens)
+     @cl:doc(function to)
+     @cl:doc(macro gen-lenses)
+     @cl:doc(variable *car*)
+     @cl:doc(variable *cdr*)
+     @cl:doc(variable *caar*)
+     @cl:doc(variable *cadr*)
+     @cl:doc(variable *cdar*)
+     @cl:doc(variable *cddr*)
+   )
+@end(section)
