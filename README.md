@@ -1,5 +1,6 @@
 picolens
 ========
+[![CI tests](https://github.com/shamazmazum/picolens/actions/workflows/test.yml/badge.svg)](https://github.com/shamazmazum/picolens/actions/workflows/test.yml)
 
 A tiny library for working with lenses:
 
@@ -10,4 +11,4 @@ CL-USER> (picolens:view picolens:*caar* '((1 . 2) 3))
 1
 ```
 
-For more info read the documentation.
+For more info read the [documentation](https://shamazmazum.github.io/picolens/).
