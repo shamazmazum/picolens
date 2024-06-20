@@ -73,11 +73,8 @@ CL-USER&gt; (picolens:over #'x #'1+ *foo*)
 </code></pre><p>   Note that <code>*foo*</code> itself does not change after a call to <code>set</code>:
 </p><pre><code class="lisp">CL-USER&gt; *foo*
 #S(FOO :X 3 :Y (2 . 4))
-</code></pre><p>   Let's define lenses for a cons cell:
-</p><pre><code class="lisp">(picolens:gen-lenses cons
-  (car fst)
-  (cdr snd))
-</code></pre><p>  Two lenses can be composed to access objects which lie even deeper:
+</code></pre><p>   There are lenses <code>picolens:car</code> and <code>picolens:cdr</code> for slots in a cons
+   cell. Two lenses can be composed to access objects which lie deeper:
 </p><pre><code class="lisp">CL-USER&gt; (picolens:view (picolens:compose #'y #'fst) *foo*)
 2
 CL-USER&gt; (picolens:set (picolens:compose #'y #'fst) 30 *foo*)
@@ -86,18 +83,18 @@ CL-USER&gt; (picolens:set (picolens:compose #'y #'fst) 30 *foo*)
   we would write:
 </p><pre><code class="lisp">CL-USER&gt; (funcall (alexandria:compose #'car #'foo-y) *foo*)
 2
-</code></pre><p>  A operation of composition is associative and has a neutral element <code>empty</code>
+</code></pre><p>  An operation of composition is associative and has a neutral element <code>empty</code>
   which can be useful, for example, for traversals of trees.</p><p>  A lens can be made out of a pair of ordinary functions, one of which acts as
-  a reader and another as a writer. For example, the previously defined <code>fst</code>
-  is equivalent to
+  a reader and another as a writer. For example, <code>picolens:car</code> is equivalent
+  to
 </p><pre><code class="lisp">CL-USER&gt; (picolens:lens #'car (lambda (x cons)(cons x (cdr cons))))
 </code></pre><p>  An &quot;incomplete&quot; lens, a getter can be obtained by calling <code>to</code>:
 </p><pre><code class="lisp">CL-USER&gt; (picolens:to #'car)
 </code></pre><p>
   A getter can only be used with <code>view</code>. Using it with <code>over</code> and <code>set</code>
-  signals an error.</p><p>Also there is a fold which can be made using lenses of getters. For example,
+  signals an error.</p><p>Also there is a fold which can be made using lenses or getters. For example,
 this is how you can add to objects in a cons pair:
-</p><pre><code class="lisp">CL-USER&gt; (picolens:view (picolens:fold #'+ (picolens:to #'car)(picolens:to #'cdr)) '(1 . 3))
+</p><pre><code class="lisp">CL-USER&gt; (picolens:view (picolens:fold #'+ #'picolens:car #'picolens:cdr) '(1 . 3))
 4
 </code></pre><p>
 </p>
