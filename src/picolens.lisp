@@ -39,12 +39,12 @@
 
 For example
 @begin[lang=lisp](code)
-(view (compose (to #'cdr) (to #'car)) x)
+(view (compose (to #'cl:cdr) (to #'cl:car)) x)
 @end(code)
 
 is equal to
 @begin[lang=lisp](code)
-(car (cdr x))
+(cl:car (cl:cdr x))
 @end(code)"
   (declare (optimize (speed 3)))
   (reduce
@@ -64,9 +64,9 @@ type @c(b -> a).
 
 Example:
 @begin[lang=lisp](code)
-(lens #'car (lambda (v cons) (cons v (cdr cons))))
+(lens #'cl:car (lambda (v cons) (cons v (cl:cdr cons))))
 @end(code)
-is a lens equivalent of @c(car)."
+is a lens equivalent of @c(cl:car)."
   (declare (optimize (speed 3))
            (type function get set))
   (lambda (fmap f x)
@@ -86,36 +86,54 @@ getter with @c(over) or @c(set) results in a runtime error."
          (declare (ignore s x))
          (error "Cannot act like setter"))))
 
-(defparameter *car*
-  (lens #'car
-        (lambda (s cons)
-          (cons s (cdr cons))))
-  "Lens equivalent of @c(car)")
+(defun car (fmap f x)
+  "Lens equivalent of @c(cl:car)"
+  (funcall
+   fmap (lambda (s)
+          (cons s (cl:cdr x)))
+   (funcall f (cl:car x))))
 
-(defparameter *cdr*
-  (lens #'cdr
-        (lambda (s cons)
-          (cons (car cons) s)))
-  "Lens equivalent of @c(cdr)")
+(defun cdr (fmap f x)
+  "Lens equivalent of @c(cl:cdr)"
+  (funcall
+   fmap (lambda (s)
+          (cons (cl:car x) s))
+   (funcall f (cl:cdr x))))
 
-(defparameter *cadr* (compose *cdr* *car*)
-  "Lens equivalent of @c(cadr)")
+(defun cadr (fmap f x)
+  "Lens equivalent of @c(cl:cadr)"
+  (funcall
+   fmap (lambda (s)
+          (cons (cl:car x) (cons s (cl:cddr x))))
+   (funcall f (cl:cadr x))))
 
-(defparameter *caar* (compose *car* *car*)
-  "Lens equivalent of @c(caar)")
+(defun caar (fmap f x)
+  "Lens equivalent of @c(cl:caar)"
+  (funcall
+   fmap (lambda (s)
+          (cons (cons s (cl:cdar x)) (cl:cdr x)))
+   (funcall f (cl:caar x))))
 
-(defparameter *cddr* (compose *cdr* *cdr*)
-  "Lens equivalent of @c(cddr)")
+(defun cddr (fmap f x)
+  "Lens equivalent of @c(cl:cddr)"
+  (funcall
+   fmap (lambda (s)
+          (cons (cl:car x) (cons (cl:cadr x) s)))
+   (funcall f (cl:cddr x))))
 
-(defparameter *cdar* (compose *car* *cdr*)
-  "Lens equivalent of @c(cdar)")
+(defun cdar (fmap f x)
+  "Lens equivalent of @c(cl:cdar)"
+  (funcall
+   fmap (lambda (s)
+          (cons (cons (cl:caar x) s) (cl:cdr x)))
+   (funcall f (cl:cdar x))))
 
 (defun fold (f &rest gs)
   "Make a fold out of multiple getters @c(gs) and an associative
 binary operation @c(f):
 
 @begin[lang=lisp](code)
-(view (fold #'* *car* *cdr*) '(2 . 3)) ; => 6
+(view (fold #'* #'picolens:car #'picolens:cdr) '(2 . 3)) ; => 6
 @end(code)"
   (declare (optimize (speed 3))
            (type function f))

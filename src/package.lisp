@@ -1,6 +1,12 @@
 (defpackage picolens
   (:use #:cl)
-  (:shadow #:set)
+  (:shadow #:set
+           #:car
+           #:cdr
+           #:caar
+           #:cadr
+           #:cdar
+           #:cddr)
   (:export #:over
            #:set
            #:view
@@ -10,9 +16,9 @@
            #:lens
            #:to
            #:gen-lenses
-           #:*car*
-           #:*cdr*
-           #:*cadr*
-           #:*caar*
-           #:*cdar*
-           #:*cddr*))
+           #:car
+           #:cdr
+           #:cadr
+           #:caar
+           #:cdar
+           #:cddr))
