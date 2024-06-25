@@ -75,9 +75,9 @@ CL-USER&gt; (picolens:over #'x #'1+ *foo*)
 #S(FOO :X 3 :Y (2 . 4))
 </code></pre><p>   There are lenses <code>picolens:car</code> and <code>picolens:cdr</code> for slots in a cons
    cell. Two lenses can be composed to access objects which lie deeper:
-</p><pre><code class="lisp">CL-USER&gt; (picolens:view (picolens:compose #'y #'fst) *foo*)
+</p><pre><code class="lisp">CL-USER&gt; (picolens:view (picolens:compose #'y #'picolens:car) *foo*)
 2
-CL-USER&gt; (picolens:set (picolens:compose #'y #'fst) 30 *foo*)
+CL-USER&gt; (picolens:set (picolens:compose #'y #'picolens:car) 30 *foo*)
 #S(FOO :X 3 :Y (30 . 4))
 </code></pre><p>  The order of composition is a reverse of a usual function call, i.e. usually
   we would write:
