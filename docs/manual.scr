@@ -43,9 +43,9 @@ CL-USER> *foo*
    There are lenses @c(picolens:car) and @c(picolens:cdr) for slots in a cons
    cell. Two lenses can be composed to access objects which lie deeper:
 @begin[lang=lisp](code)
-CL-USER> (picolens:view (picolens:compose #'y #'fst) *foo*)
+CL-USER> (picolens:view (picolens:compose #'y #'picolens:car) *foo*)
 2
-CL-USER> (picolens:set (picolens:compose #'y #'fst) 30 *foo*)
+CL-USER> (picolens:set (picolens:compose #'y #'picolens:car) 30 *foo*)
 #S(FOO :X 3 :Y (30 . 4))
 @end(code)
 
