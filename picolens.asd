@@ -1,6 +1,6 @@
 (defsystem :picolens
   :name :picolens
-  :version "0.1"
+  :version "0.2"
   :author "Vasily Postnicov <shamaz.mazum@gmail.com>"
   :description "Tiny functional references to structure slots for Common Lisp"
   :licence "2-clause BSD"
@@ -17,7 +17,7 @@
 
 (defsystem :picolens/tests
   :name :picolens/tests
-  :version "0.1"
+  :version "0.2"
   :author "Vasily Postnicov <shamaz.mazum@gmail.com>"
   :licence "2-clause BSD"
   :pathname "tests"
