@@ -21,4 +21,5 @@
            #:cadr
            #:caar
            #:cdar
-           #:cddr))
+           #:cddr
+           #:all))

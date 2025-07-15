@@ -100,5 +100,6 @@ CL-USER> (picolens:view (picolens:fold #'+ #'picolens:car #'picolens:cdr) '(1 . 
      @cl:doc(function cadr)
      @cl:doc(function cdar)
      @cl:doc(function cddr)
+     @cl:doc(function all)
    )
 @end(section)

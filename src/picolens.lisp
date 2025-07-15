@@ -128,6 +128,10 @@ getter with @c(over) or @c(set) results in a runtime error."
           (cons (cons (cl:caar x) s) (cl:cdr x)))
    (funcall f (cl:cdar x))))
 
+(defun all (fmap f x)
+  "Lens which targets all elements of a list"
+  (funcall fmap #'identity (mapcar f x)))
+
 (defun fold (f &rest gs)
   "Make a fold out of multiple getters @c(gs) and an associative
 binary operation @c(f):

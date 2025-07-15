@@ -95,3 +95,11 @@
                (picolens:view l2 *tree*)))
         (is (equalp (picolens:set l1 v *tree*)
                     (picolens:set l2 v *tree*)))))))
+
+(test all
+  (let* ((nodes    (loop for i below 10 collect (node i nil nil)))
+         (expected (loop for i below 10 collect (node (1+ i) nil nil)))
+         (new      (picolens:over (picolens:compose #'picolens:all #'value) #'1+ nodes)))
+    (loop for n1 in expected
+          for n2 in new do
+          (is (equalp n1 n2)))))
